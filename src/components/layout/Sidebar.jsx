@@ -7,21 +7,26 @@ import {
   Zap
 } from 'lucide-react';
 import { APP_NAME } from '../../utils/constants';
+import { useTasks } from '../../context/TaskContext';
 
 const Sidebar = () => {
+  const { tasks } = useTasks();
+  
+  const activeCount = tasks.filter(t => !t.completed).length;
+  const completedCount = tasks.filter(t => t.completed).length;
+
   const menuItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/tasks', label: 'All Tasks', icon: ListTodo },
-    { path: '/completed', label: 'Completed', icon: CheckCircle2 },
-    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+    { path: '/tasks', label: 'All Tasks', icon: ListTodo, badge: activeCount },
+    { path: '/completed', label: 'Completed', icon: CheckCircle2, badge: completedCount },
+    { path: '/settings', label: 'Settings', icon: Settings, badge: null },
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen sticky top-0">
-      {/* Logo */}
+<aside className="flex flex-col w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen lg:sticky top-0">      {/* Logo */}
       <div className="p-6 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
             <Zap className="text-white" size={22} />
           </div>
           <div>
@@ -45,15 +50,30 @@ const Sidebar = () => {
               to={item.path}
               end={item.path === '/'}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg transition-all font-medium ${
+                `flex items-center justify-between px-4 py-3 rounded-lg transition-all font-medium group ${
                   isActive
-                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`
               }
             >
-              <Icon size={20} />
-              <span>{item.label}</span>
+              {({ isActive }) => (
+                <>
+                  <div className="flex items-center gap-3">
+                    <Icon size={20} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge !== null && item.badge > 0 && (
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                      isActive 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </>
+              )}
             </NavLink>
           );
         })}
@@ -61,10 +81,10 @@ const Sidebar = () => {
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 text-white">
+        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
           <p className="text-sm font-semibold mb-1">Pro Tip 💡</p>
           <p className="text-xs opacity-90">
-            Set priorities to stay focused on what matters most!
+            Press <kbd className="px-1.5 py-0.5 bg-white/20 rounded text-xs">Ctrl+N</kbd> to add task quickly!
           </p>
         </div>
       </div>
